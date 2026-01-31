@@ -122,8 +122,11 @@ Contributions, issues, and feature requests are welcome! Feel free to check the 
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👤 Author
+### 👨‍💻 Developer Information
 
-**Danuja Adikari**
-- GitHub: [@danujaadikari](https://github.com/danujaadikari)
+**Danuja Adikari**  
+📧 Email     : [danujaadikari2001@gmail.com](mailto:danujaadikari2001@gmail.com)  
+💼 LinkedIn  : [linkedin.com/in/danuja-adikari](https://www.linkedin.com/in/danuja-adikari)
+
+---
 
