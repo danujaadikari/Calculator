@@ -127,11 +127,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Danuja Adikari**
 - GitHub: [@danujaadikari](https://github.com/danujaadikari)
 
-## 🙏 Acknowledgments
-
-- Inspired by modern iOS calculator design
-- Built with React Native and Expo for cross-platform compatibility
-
----
-
-Made with ❤️ using React Native and Expo
