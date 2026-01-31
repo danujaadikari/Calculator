@@ -3,9 +3,17 @@ import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, StatusBar } fro
 
 export default function App() {
   const [display, setDisplay] = useState('0');
+  const [expression, setExpression] = useState('');
   const [previousValue, setPreviousValue] = useState(null);
   const [operation, setOperation] = useState(null);
   const [waitingForOperand, setWaitingForOperand] = useState(false);
+
+  // Format number with commas
+  const formatNumber = (num) => {
+    const parts = num.toString().split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return parts.join('.');
+  };
 
   // Handle number button press
   const handleNumberPress = (num) => {
@@ -23,12 +31,14 @@ export default function App() {
 
     if (previousValue === null) {
       setPreviousValue(inputValue);
+      setExpression(formatNumber(inputValue) + ' ' + nextOperator);
     } else if (operation) {
       const currentValue = previousValue || 0;
       const newValue = performCalculation(currentValue, inputValue, operation);
       
       setDisplay(String(newValue));
       setPreviousValue(newValue);
+      setExpression(formatNumber(newValue) + ' ' + nextOperator);
     }
 
     setWaitingForOperand(true);
@@ -40,10 +50,13 @@ export default function App() {
     switch (operator) {
       case '+':
         return firstValue + secondValue;
+      case '−':
       case '-':
         return firstValue - secondValue;
+      case '×':
       case '*':
         return firstValue * secondValue;
+      case '÷':
       case '/':
         return secondValue !== 0 ? firstValue / secondValue : 'Error';
       default:
@@ -60,7 +73,9 @@ export default function App() {
       
       if (result === 'Error') {
         setDisplay('Error');
+        setExpression('');
       } else {
+        setExpression(formatNumber(previousValue) + ' ' + operation + ' ' + formatNumber(inputValue));
         setDisplay(String(result));
       }
       
@@ -73,9 +88,24 @@ export default function App() {
   // Handle clear button press
   const handleClear = () => {
     setDisplay('0');
+    setExpression('');
     setPreviousValue(null);
     setOperation(null);
     setWaitingForOperand(false);
+  };
+
+  // Handle toggle sign (+/-)
+  const handleToggleSign = () => {
+    const value = parseFloat(display);
+    if (value !== 0) {
+      setDisplay(String(value * -1));
+    }
+  };
+
+  // Handle percentage
+  const handlePercentage = () => {
+    const value = parseFloat(display);
+    setDisplay(String(value / 100));
   };
 
   // Handle decimal point
@@ -105,8 +135,11 @@ export default function App() {
       
       {/* Display Area */}
       <View style={styles.displayContainer}>
+        <Text style={styles.expressionText} numberOfLines={1} adjustsFontSizeToFit>
+          {expression || ' '}
+        </Text>
         <Text style={styles.displayText} numberOfLines={1} adjustsFontSizeToFit>
-          {display}
+          {formatNumber(display)}
         </Text>
       </View>
 
@@ -115,9 +148,9 @@ export default function App() {
         {/* Row 1 */}
         <View style={styles.row}>
           {renderButton('C', handleClear, styles.functionButton)}
-          {renderButton('/', () => handleOperatorPress('/'), styles.operatorButton)}
-          {renderButton('*', () => handleOperatorPress('*'), styles.operatorButton)}
-          {renderButton('-', () => handleOperatorPress('-'), styles.operatorButton)}
+          {renderButton('±', handleToggleSign, styles.functionButton)}
+          {renderButton('%', handlePercentage, styles.functionButton)}
+          {renderButton('÷', () => handleOperatorPress('÷'), styles.operatorButton)}
         </View>
 
         {/* Row 2 */}
@@ -125,7 +158,7 @@ export default function App() {
           {renderButton('7', () => handleNumberPress(7))}
           {renderButton('8', () => handleNumberPress(8))}
           {renderButton('9', () => handleNumberPress(9))}
-          {renderButton('+', () => handleOperatorPress('+'), styles.operatorButton)}
+          {renderButton('×', () => handleOperatorPress('×'), styles.operatorButton)}
         </View>
 
         {/* Row 3 */}
@@ -133,7 +166,7 @@ export default function App() {
           {renderButton('4', () => handleNumberPress(4))}
           {renderButton('5', () => handleNumberPress(5))}
           {renderButton('6', () => handleNumberPress(6))}
-          {renderButton('=', handleEquals, styles.equalsButton)}
+          {renderButton('−', () => handleOperatorPress('−'), styles.operatorButton)}
         </View>
 
         {/* Row 4 */}
@@ -141,14 +174,14 @@ export default function App() {
           {renderButton('1', () => handleNumberPress(1))}
           {renderButton('2', () => handleNumberPress(2))}
           {renderButton('3', () => handleNumberPress(3))}
-          <View style={styles.button} />
+          {renderButton('+', () => handleOperatorPress('+'), styles.operatorButton)}
         </View>
 
         {/* Row 5 */}
         <View style={styles.row}>
           {renderButton('0', () => handleNumberPress(0), styles.zeroButton)}
           {renderButton('.', handleDecimal)}
-          <View style={styles.button} />
+          {renderButton('=', handleEquals, styles.equalsButton)}
         </View>
       </View>
     </SafeAreaView>
@@ -158,59 +191,69 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1c1c1c',
+    backgroundColor: '#17171c',
   },
   displayContainer: {
     flex: 2,
     justifyContent: 'flex-end',
     alignItems: 'flex-end',
-    padding: 20,
-    backgroundColor: '#1c1c1c',
+    paddingHorizontal: 24,
+    paddingBottom: 20,
+    paddingTop: 60,
+    backgroundColor: '#17171c',
+  },
+  expressionText: {
+    fontSize: 24,
+    color: '#a5a5a5',
+    fontWeight: '300',
+    marginBottom: 8,
   },
   displayText: {
-    fontSize: 60,
+    fontSize: 64,
     color: '#ffffff',
-    fontWeight: '300',
+    fontWeight: '200',
   },
   buttonContainer: {
     flex: 5,
-    padding: 10,
-    backgroundColor: '#1c1c1c',
+    paddingHorizontal: 12,
+    paddingBottom: 12,
+    backgroundColor: '#17171c',
   },
   row: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   button: {
     flex: 1,
-    backgroundColor: '#333333',
+    backgroundColor: '#2e2f38',
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 5,
-    borderRadius: 50,
-    elevation: 3,
+    marginHorizontal: 6,
+    borderRadius: 24,
+    elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 5,
   },
   buttonText: {
-    fontSize: 28,
+    fontSize: 32,
     color: '#ffffff',
-    fontWeight: '400',
+    fontWeight: '300',
   },
   functionButton: {
-    backgroundColor: '#505050',
+    backgroundColor: '#4e505f',
   },
   operatorButton: {
-    backgroundColor: '#ff9500',
+    backgroundColor: '#ff9f0a',
   },
   equalsButton: {
-    backgroundColor: '#ff9500',
+    backgroundColor: '#ff9f0a',
   },
   zeroButton: {
     flex: 2,
+    marginRight: 6,
   },
 });
